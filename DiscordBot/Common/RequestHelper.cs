@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using dm.TCZ.Data;
 using dm.TCZ.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +19,30 @@ namespace dm.TCZ.DiscordBot
 
     public static class RequestHelper
     {
-        public static async Task<RequestResult> CreateAndCheckRateLimit(AppDbContext db,
-            SocketCommandContext context, int seconds)
+        public static async Task<bool> IsRateLimited(AppDbContext db, ICommandContext context, Config config)
+        {
+            var res = await CreateAndCheckRateLimit(db, context, config.RequestCooldown);
+            if (res.Request.IsRateLimited)
+            {
+                if (res.AlreadyWarned)
+                    return true;
+
+                await context.Message.AddReactionAsync(new Emoji(config.EmoteBad)).ConfigureAwait(false);
+                await Discord.ReplyDMAsync(context,
+                   Discord.OutputRateLimit(res.RequestCooldownSeconds)).ConfigureAwait(false);
+
+                res.Request.Response = RequestResponse.RateLimited;
+                await Save(db, res).ConfigureAwait(false);
+
+                return true;
+            }
+
+            await Save(db, res).ConfigureAwait(false);
+            return false;
+        }
+
+        private static async Task<RequestResult> CreateAndCheckRateLimit(AppDbContext db,
+            ICommandContext context, int seconds)
         {
             // TODO: comman granularity
 
@@ -49,7 +72,7 @@ namespace dm.TCZ.DiscordBot
                         //x.Command == message &&
                         x.IsRateLimited == true)
                     .ConfigureAwait(false);
-                
+
                 if (warnReq != null)
                     alreadyWarned = warnReq.Date > lastReq.Date;
             }

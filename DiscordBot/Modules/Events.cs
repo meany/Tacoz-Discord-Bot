@@ -38,25 +38,6 @@ namespace dm.TCZ.DiscordBot
 
             if (message.HasStringPrefix(config.BotPrefix, ref argPos))
             {
-                var res = await RequestHelper.CreateAndCheckRateLimit(db, context, config.RequestCooldown);
-                if (res.Request.IsRateLimited)
-                {
-                    if (res.AlreadyWarned)
-                        return;
-
-                    await message.AddReactionAsync(new Emoji(config.EmoteBad)).ConfigureAwait(false);
-                    await Discord.ReplyDMAsync(context,
-                       Discord.OutputRateLimit(res.RequestCooldownSeconds)).ConfigureAwait(false);
-
-                    res.Request.Response = Data.Models.RequestResponse.RateLimited;
-                    await RequestHelper.Save(db, res).ConfigureAwait(false);
-
-                    log.Info("Request rate limited");
-                    return;
-                }
-                
-                await RequestHelper.Save(db, res).ConfigureAwait(false);
-
                 var result = await commands.ExecuteAsync(context, argPos, services).ConfigureAwait(false);
                 if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                     await context.Channel.SendMessageAsync($"{result.ErrorReason}\n" +

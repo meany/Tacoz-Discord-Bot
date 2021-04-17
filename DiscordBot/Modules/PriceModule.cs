@@ -48,6 +48,12 @@ namespace dm.TCZ.DiscordBot.Modules
                 if (!config.ChannelIds.Contains(Context.Channel.Id))
                     return;
 
+                if (await RequestHelper.IsRateLimited(db, Context, config))
+                {
+                    log.Info("Request rate limited");
+                    return;
+                }
+
                 using var a = Context.Channel.EnterTypingState();
                 log.Info("Requesting prices and stats");
 
