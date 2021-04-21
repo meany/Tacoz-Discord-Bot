@@ -26,6 +26,11 @@ namespace dm.TCZ.Prices
 
         private QuipStorage quipData;
         private CoinGecko.Entities.Response.Simple.Price data;
+        private BigInteger tacozCirc;
+        private Price prices24hAgo;
+
+        private static readonly string lpContract1 = "KT1GGxCNiJ7yaBAH4hAw5AHXbP3PSmAiy3wK";
+        private static readonly string lpContract1dot1 = "KT18oC9954dDwwrUC6uMor1nfgnW1WyVEua4";
 
         public static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
@@ -92,50 +97,31 @@ namespace dm.TCZ.Prices
                 decimal price120kTczEth = 120_000 * priceTczEth;
 
                 // market cap
-                decimal fullMktCapUsd = priceTczUsd * 1_000_000_000_000;
-                decimal circMktCapUsd = priceTczUsd * 612_550_568;
+                decimal totalTcz = 1_000_000_000_000;
+                decimal fullMktCapUsd = priceTczUsd * totalTcz;
+                decimal tacozCircXtz = totalTcz - tacozCirc.ToEth();
+                decimal circMktCapUsd = priceTczUsd * tacozCircXtz;
 
-                //decimal mktCapUsd = decimal.Parse(data.MarketData.MarketCap["usd"].Value.ToString());
-                //decimal mktCapUsdChgAmt = (data.MarketData.MarketCapChange24HInCurrency.Count == 0) ? 0 : decimal.Parse(data.MarketData.MarketCapChange24HInCurrency["usd"].ToString(), NumberStyles.Any);
-                //Change mktCapUsdChg = (mktCapUsdChgAmt > 0) ? Change.Up : (mktCapUsdChgAmt < 0) ? Change.Down : Change.None;
-                //decimal mktCapUsdChgPct = (data.MarketData.MarketCapChangePercentage24HInCurrency.Count == 0) ? 0 : decimal.Parse(data.MarketData.MarketCapChangePercentage24HInCurrency["usd"].ToString(), NumberStyles.Any);
+                decimal mktCapUsdChgAmt = fullMktCapUsd - prices24hAgo.FullMarketCapUSD;
+                Change mktCapUsdChg = (mktCapUsdChgAmt > 0) ? Change.Up : (mktCapUsdChgAmt < 0) ? Change.Down : Change.None;
+                decimal mktCapUsdChgPct = (Math.Abs(mktCapUsdChgAmt) / prices24hAgo.FullMarketCapUSD);
 
                 //// volume
                 //int volumeUsd = (int)Math.Round(data.MarketData.TotalVolume["usd"].Value);
 
-                //// prices
-                //decimal priceBtc = decimal.Parse(data.MarketData.CurrentPrice["btc"].Value.ToString(), NumberStyles.Any);
-
-                //string changeBtc = "0";
-                //string changeEth = "0";
-                //string changeUsd = "0";
-                //string changeBtcPct = "0";
-                //string changeEthPct = "0";
-                //string changeUsdPct = "0";
-                //if (data.MarketData.PriceChange24HInCurrency.Count > 0 &&
-                //    data.MarketData.PriceChangePercentage24HInCurrency.Count > 0)
-                //{
-                //    changeBtc = data.MarketData.PriceChange24HInCurrency["btc"].ToString();
-                //    changeBtcPct = data.MarketData.PriceChangePercentage24HInCurrency["btc"].ToString();
-                //    changeEth = data.MarketData.PriceChange24HInCurrency["eth"].ToString();
-                //    changeEthPct = data.MarketData.PriceChangePercentage24HInCurrency["eth"].ToString();
-                //    changeUsd = data.MarketData.PriceChange24HInCurrency["usd"].ToString();
-                //    changeUsdPct = data.MarketData.PriceChangePercentage24HInCurrency["usd"].ToString();
-                //}
-
-                //decimal priceBtcChgAmt = decimal.Parse(changeBtc, NumberStyles.Any);
-                //Change priceBtcChg = (priceBtcChgAmt > 0) ? Change.Up : (priceBtcChgAmt < 0) ? Change.Down : Change.None;
-                //decimal priceBtcChgPct = decimal.Parse(changeBtcPct, NumberStyles.Any);
-
-                //decimal priceEth = decimal.Parse(data.MarketData.CurrentPrice["eth"].Value.ToString(), NumberStyles.Any);
-                //decimal priceEthChgAmt = decimal.Parse(changeEth, NumberStyles.Any);
-                //Change priceEthChg = (priceEthChgAmt > 0) ? Change.Up : (priceEthChgAmt < 0) ? Change.Down : Change.None;
-                //decimal priceEthChgPct = decimal.Parse(changeEthPct, NumberStyles.Any);
-
-                //decimal priceUsd = decimal.Parse(data.MarketData.CurrentPrice["usd"].Value.ToString(), NumberStyles.Any);
-                //decimal priceUsdChgAmt = decimal.Parse(changeUsd, NumberStyles.Any);
-                //Change priceUsdChg = (priceUsdChgAmt > 0) ? Change.Up : (priceUsdChgAmt < 0) ? Change.Down : Change.None;
-                //decimal priceUsdChgPct = decimal.Parse(changeUsdPct, NumberStyles.Any);
+                // price changes
+                decimal changeBtc = price120kTczBtc - prices24hAgo.PriceBTC120k;
+                decimal changeEth = price120kTczEth - prices24hAgo.PriceETH120k;
+                decimal changeXtz = priceOneXtz - prices24hAgo.PriceTCZForOneXTZ;
+                decimal changeUsd = price120kTczUsd - prices24hAgo.PriceUSD120k;
+                Change priceBtcChg = (changeBtc > 0) ? Change.Up : (changeBtc < 0) ? Change.Down : Change.None;
+                Change priceEthChg = (changeEth > 0) ? Change.Up : (changeEth < 0) ? Change.Down : Change.None;
+                Change priceXtzChg = (changeXtz > 0) ? Change.Up : (changeXtz < 0) ? Change.Down : Change.None;
+                Change priceUsdChg = (changeUsd > 0) ? Change.Up : (changeUsd < 0) ? Change.Down : Change.None;
+                decimal changeBtcPct = (Math.Abs(changeBtc) / prices24hAgo.PriceBTC120k);
+                decimal changeEthPct = (Math.Abs(changeEth) / prices24hAgo.PriceETH120k);
+                decimal changeXtzPct = (Math.Abs(changeXtz) / prices24hAgo.PriceTCZForOneXTZ);
+                decimal changeUsdPct = (Math.Abs(changeUsd) / prices24hAgo.PriceUSD120k);
 
                 var item = new Price
                 {
@@ -157,16 +143,17 @@ namespace dm.TCZ.Prices
                     PriceUSD = priceTczUsd,
                     PriceUSD120k = price120kTczUsd,
 
-                    //MarketCapUSDChange = mktCapUsdChg,
-                    //MarketCapUSDChangePct = mktCapUsdChgPct,
-                    //PriceBTCChange = priceBtcChg,
-                    //PriceBTCChangePct = priceBtcChgPct,
-                    //PriceETHChange = priceEthChg,
-                    //PriceETHChangePct = priceEthChgPct,
-                    //PriceUSDChange = priceUsdChg,
-                    //PriceUSDChangePct = priceUsdChgPct,
-                    //PriceXTZChange = priceXtzChg,
-                    //PriceXTZChangePct = priceXtzChgPct,
+                    MarketCapUSDChange = mktCapUsdChg,
+                    MarketCapUSDChangePct = mktCapUsdChgPct,
+                    PriceBTCChange = priceBtcChg,
+                    PriceBTCChangePct = changeBtcPct,
+                    PriceETHChange = priceEthChg,
+                    PriceETHChangePct = changeEthPct,
+                    PriceXTZChange = priceXtzChg,
+                    PriceXTZChangePct = changeXtzPct,
+                    PriceUSDChange = priceUsdChg,
+                    PriceUSDChangePct = changeUsdPct,
+                    
                     //VolumeUSD = volumeUsd
                 };
 
@@ -184,11 +171,29 @@ namespace dm.TCZ.Prices
         private async Task GetInfo()
         {
             GetTczLp();
+            GetTczCirc();
             GetSimplePrices();
+            GetPrices24hAgo();
 
-            while (quipData == null || data == null)
+            while (prices24hAgo == null || quipData == null || tacozCirc == 0 || data == null)
                 await Task.Delay(200);
 
+        }
+
+        private async void GetPrices24hAgo()
+        {
+            try
+            {
+                prices24hAgo = await db.Prices
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.Date)
+                    .FirstOrDefaultAsync(x => x.Date <= DateTime.UtcNow.AddHours(-24));
+                log.Info($"GetPrices24hAgo: OK");
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
         }
 
         private async void GetSimplePrices()
@@ -207,12 +212,29 @@ namespace dm.TCZ.Prices
             }
         }
 
+        private async void GetTczCirc()
+        {
+            try
+            {
+                var client = new RestClient("https://better-call.dev");
+                var request = new RestRequest($"v1/account/mainnet/tz1fGotNGshKkoZNYBsyCwMTkaeU6k2T28MF/token_balances?offset=0&size=1", DataFormat.Json);
+                var bcdTokenData = await client.GetAsync<BcdToken>(request);
+                tacozCirc = BigInteger.Parse(bcdTokenData.Balances[0].Balance);
+
+                log.Info($"GetTczCirc: OK");
+            }
+            catch (Exception ex)
+            {
+                log.Error(ex);
+            }
+        }
+
         private async void GetTczLp()
         {
             try
             {
                 var client = new RestClient("https://mainnet.smartpy.io");
-                var request = new RestRequest("chains/main/blocks/head/context/contracts/KT1NNwvwvJVrw5Fuq4Nqu4upqqsktsUapzFK/storage", DataFormat.Json);
+                var request = new RestRequest($"chains/main/blocks/head/context/contracts/{lpContract1dot1}/storage", DataFormat.Json);
                 quipData = await client.GetAsync<QuipStorage>(request);
 
                 log.Info($"GetTczLp: OK");

@@ -50,7 +50,7 @@ namespace dm.TCZ.DiscordBot
         {
             tmrNick = new Timer(async _ =>
             {
-                var item = await Data.Common.GetAllInfo(db).ConfigureAwait(false);
+                var item = await Common.GetAllInfo(db).ConfigureAwait(false);
                 string status = $"MCap ${item.Price.CircMarketCapUSD.FormatLarge()} | !price";
                 await client.SetGameAsync(status).ConfigureAwait(false);
 

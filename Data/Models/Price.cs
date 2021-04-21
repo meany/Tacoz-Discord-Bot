@@ -48,6 +48,9 @@ namespace dm.TCZ.Data.Models
         public Change PriceBTCChange { get; set; }
         [Column(TypeName = "decimal(12, 8)")]
         public decimal PriceBTCChangePct { get; set; }
+        public Change PriceXTZChange { get; set; }
+        [Column(TypeName = "decimal(12, 8)")]
+        public decimal PriceXTZChangePct { get; set; }
 
         public int FullMarketCapUSD { get; set; }
         public int CircMarketCapUSD { get; set; }
