@@ -68,6 +68,11 @@ namespace dm.TCZ.DiscordBot.Modules
                 if (item.IsOutOfSync())
                     footerText += "\nStats might be out of sync. The admin has been contacted.";
 
+                string label1 = $"1 XTZ/TCZ: {item.Price.PriceTCZForOneXTZ.FormatTcz(true)}";
+                string value1 = $"{item.Price.PriceXTZChange.Indicator()}{item.Price.PriceXTZChangePct.FormatPct(0)}%";
+                string label2 = $"Price/USD: ${item.Price.PriceUSD120k.FormatUsd(0)}";
+                string value2 = $"{item.Price.PriceUSDChange.Indicator()}{item.Price.PriceUSDChangePct.FormatPct()}%";
+
                 var output = new EmbedBuilder();
                 output.WithColor(Color.THEME_RED)
                 .WithAuthor(author =>
@@ -76,11 +81,11 @@ namespace dm.TCZ.DiscordBot.Modules
                 })
                 .WithDescription($"**{item.Price.PriceUSD.FormatUsd(6)} USD** for a single {taco}!")
                 .AddField($"— Prices", "```ml\n" +
-                    $"1 XTZ/TCZ: {item.Price.PriceTCZForOneXTZ.FormatTcz(true)}\n" +
+                    $"{label1,-20} {value1,10:C}\n" +
                     $"1 TCZ/XTZ: {item.Price.PriceXTZForOneTCZ.FormatTcz()}" +
                     "```")
                 .AddField($"— Market (120k TCZ)", "```ml\n" +
-                    $"Price/USD: ${item.Price.PriceUSD120k.FormatUsd()}\n" +
+                    $"{label2,-20} {value2,10:C}\n" +
                     $"Price/BTC: ₿{item.Price.PriceBTC120k.FormatBtc()}\n" +
                     $"Price/ETH: Ξ{item.Price.PriceETH120k.FormatEth()}\n" +
                     $"Full MCap: ${item.Price.FullMarketCapUSD.FormatLarge()}\n" +

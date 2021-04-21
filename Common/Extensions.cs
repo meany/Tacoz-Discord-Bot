@@ -58,10 +58,20 @@ namespace dm.TCZ
             return string.Format("{0:#,##0.00000000}", source);
         }
 
+        public static string FormatPct(this decimal source, int places = 0)
+        {
+            return (source * 100).FormatUsd(places);
+        }
+
         public static string FormatUsd(this decimal source, int minimumPlaces = 2)
         {
-            string places = new string('0', minimumPlaces);
+            string places = (minimumPlaces > 0) ? new string('0', minimumPlaces) : string.Empty;
             return string.Format($"{{0:#,##0.{places}##}}", source);
+        }
+
+        public static string Indicator(this Change change)
+        {
+            return (change == Change.Up) ? "↗" : (change == Change.Down) ? "↘" : string.Empty;
         }
 
         public static string ToDate(this DateTime source)

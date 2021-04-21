@@ -54,7 +54,8 @@ namespace dm.TCZ.DiscordBot
                 string status = $"MCap ${item.Price.CircMarketCapUSD.FormatLarge()} | !price";
                 await client.SetGameAsync(status).ConfigureAwait(false);
 
-                string nick = $"TCZ ${item.Price.PriceUSD.FormatUsd(6)}";
+                string nick = $"${item.Price.PriceUSD.FormatUsd(6)} " +
+                    $"{item.Price.PriceUSDChange.Indicator()}";
                 var guilds = client.Guilds;
                 foreach (var guild in guilds)
                 {

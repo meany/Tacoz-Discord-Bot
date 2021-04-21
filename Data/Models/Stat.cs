@@ -4,13 +4,6 @@ using System.Text.Json.Serialization;
 
 namespace dm.TCZ.Data.Models
 {
-    public enum Change
-    {
-        None = 0,
-        Down = 1,
-        Up = 2
-    }
-
     //public class Stat
     //{
     //    [JsonIgnore]
