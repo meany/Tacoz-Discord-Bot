@@ -70,7 +70,7 @@ namespace dm.TCZ.DiscordBot.Modules
 
                 string label1 = $"1 XTZ/TCZ: {item.Price.PriceTCZForOneXTZ.FormatTcz(true)}";
                 string value1 = $"{item.Price.PriceXTZChange.Indicator()}{item.Price.PriceXTZChangePct.FormatPct(0)}%";
-                string label2 = $"Price/USD: ${item.Price.PriceUSD120k.FormatUsd(0)}";
+                string label2 = $"Price/USD: ${item.Price.PriceUSD120k.FormatUsd(2)}";
                 string value2 = $"{item.Price.PriceUSDChange.Indicator()}{item.Price.PriceUSDChangePct.FormatPct()}%";
 
                 var output = new EmbedBuilder();
