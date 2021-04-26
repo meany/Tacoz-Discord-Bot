@@ -19,18 +19,20 @@ namespace dm.TCZ.Prices
 {
     class Program
     {
-        private IServiceProvider services;
-        private IConfigurationRoot configuration;
-        private AppDbContext db;
+        private static IServiceProvider services;
+        private static IConfigurationRoot configuration;
+        private static AppDbContext db;
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-        private QuipStorage quipData;
-        private CoinGecko.Entities.Response.Simple.Price data;
-        private BigInteger tacozCirc;
-        private Price prices24hAgo;
+        private static QuipStorage quipData;
+        private static CoinGecko.Entities.Response.Simple.Price data;
+        private static BigInteger tacozCirc;
+        private static Price prices24hAgo;
 
         private static readonly string lpContract1 = "KT1GGxCNiJ7yaBAH4hAw5AHXbP3PSmAiy3wK";
         private static readonly string lpContract1dot1 = "KT18oC9954dDwwrUC6uMor1nfgnW1WyVEua4";
+        private static readonly string lpContract1dot2 = "KT1VfiExduEkrpM4TbsnAw9QV1VURqaRFGKs";
+        private static string lbContractCurrent = lpContract1dot2;
 
         public static void Main(string[] args)
             => new Program().MainAsync(args).GetAwaiter().GetResult();
@@ -233,8 +235,8 @@ namespace dm.TCZ.Prices
         {
             try
             {
-                var client = new RestClient("https://mainnet.smartpy.io");
-                var request = new RestRequest($"chains/main/blocks/head/context/contracts/{lpContract1dot1}/storage", DataFormat.Json);
+                var client = new RestClient("https://mainnet-tezos.giganode.io");
+                var request = new RestRequest($"chains/main/blocks/head/context/contracts/{lbContractCurrent}/storage", DataFormat.Json);
                 quipData = await client.GetAsync<QuipStorage>(request);
 
                 log.Info($"GetTczLp: OK");
